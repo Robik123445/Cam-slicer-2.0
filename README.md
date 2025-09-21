@@ -24,6 +24,8 @@ orchestration layers.
   extraction).
 - Event sink API for RX, state, and job notifications.
 - File logging out-of-the-box (`log.txt`).
+- Raster probe planner producing structured height maps with bilinear
+  interpolation utilities.
 
 ## Installation
 
@@ -68,6 +70,14 @@ The event sink receives dictionaries in the form:
 - `{"type": "job", "data": {"id": "...", "event": "progress", "progress": 0.5}}`
   for job lifecycle notifications.
 
+## Probe planning utilities
+
+The `cam_slicer.probe.planner` module converts raster probing runs into
+structured `HeightMap` models. Helpers such as `roi_to_grid` and
+`probe_grid` build deterministic boustrophedon plans, while `fit_plane` and
+`bilinear_interp` provide smooth surface models for auto-leveling or stock
+compensation.
+
 ## REST API & Orchestrator
 
 The project ships with a pre-wired FastAPI application (`cam_slicer.api.app`) that
@@ -92,6 +102,8 @@ the server is running.
 - `POST /vision/calibrate`, `/vision/relock`, `/vision/detect` to manage
   calibration matrices and synthetic detections.
 - `POST /probe/grid` to enqueue raster probing jobs.
+- Probe planner helpers in `cam_slicer.probe.planner` convert probing results
+  into interpolated height maps for downstream compensation workflows.
 - `/intent/*` routes mapping UI intents (guide, measure, find edges) to
   orchestrator workflows.
 
@@ -119,6 +131,9 @@ python -m unittest discover -s tests
 ```
 cam_slicer/
   __init__.py
+  probe/
+    __init__.py
+    planner.py
   sender/
     __init__.py
     service.py
