@@ -68,6 +68,39 @@ The event sink receives dictionaries in the form:
 - `{"type": "job", "data": {"id": "...", "event": "progress", "progress": 0.5}}`
   for job lifecycle notifications.
 
+## REST API & Orchestrator
+
+The project ships with a pre-wired FastAPI application (`cam_slicer.api.app`) that
+exposes the sender, vision, probe, and high-level intent layers. The
+`Orchestrator` class builds on top of the sender to run simple vision-guided
+workflows while keeping calibration data in a global, lock-protected `AppState`.
+
+### Run the API locally
+
+```bash
+uvicorn cam_slicer.api.app:app --reload
+```
+
+Swagger/OpenAPI documentation is available at `http://localhost:8000/docs` once
+the server is running.
+
+### Available endpoints
+
+- `GET /health` – basic readiness probe.
+- `GET /sender/ports`, `POST /sender/open`, `GET /sender/status`, and
+  queue/control helpers under `/sender/*` for G-code streaming.
+- `POST /vision/calibrate`, `/vision/relock`, `/vision/detect` to manage
+  calibration matrices and synthetic detections.
+- `POST /probe/grid` to enqueue raster probing jobs.
+- `/intent/*` routes mapping UI intents (guide, measure, find edges) to
+  orchestrator workflows.
+
+### WebSocket streaming
+
+Connect to `ws://localhost:8000/ws/sender` to receive the same sender events as
+the event sink. Every queued line triggers at least the latest RX echo through
+the websocket so UIs stay in sync.
+
 ## Logging
 
 All internal logs are written to `log.txt` by default. Adjust the Python
