@@ -26,6 +26,8 @@ orchestration layers.
 - File logging out-of-the-box (`log.txt`).
 - Raster probe planner producing structured height maps with bilinear
   interpolation utilities.
+- Vision hub utilities for ArUco/rectangle detection, calibration, and ROI
+  generation.
 
 ## Installation
 
@@ -77,6 +79,24 @@ structured `HeightMap` models. Helpers such as `roi_to_grid` and
 `probe_grid` build deterministic boustrophedon plans, while `fit_plane` and
 `bilinear_interp` provide smooth surface models for auto-leveling or stock
 compensation.
+
+## Vision hub
+
+The `cam_slicer.vision.hub` module consolidates the core image-processing
+primitives for calibration and relock workflows. It exposes:
+
+- `affine_from_3pts` – derive pixel → CNC affine transforms from three
+  calibration pairs.
+- `detect_aruco_corners` – locate ArUco markers (DICT_4X4_50) with optional
+  preferred IDs.
+- `detect_rectangle` – find the dominant rotated rectangle in a frame.
+- `estimate_delta_affine` and `update_px2cnc_with_delta` – compute and apply
+  delta pixel transforms after vision-guided relock events.
+- `roi_from_detection` – convert detections into CNC millimetre ROIs using the
+  stored calibration matrix.
+
+All helpers accept an optional undistort hook (`set_undistort_hook`) so camera
+models can be injected without modifying call sites.
 
 ## REST API & Orchestrator
 
